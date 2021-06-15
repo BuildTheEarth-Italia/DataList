@@ -21,7 +21,7 @@ buildscript {
     }
 }
 
-group = "it.marko.banlist"
+group = "it.bteitalia.datalist"
 version = "1.2"
 
 apply(plugin = "com.github.johnrengelman.shadow")
@@ -40,10 +40,9 @@ repositories {
 
 dependencies {
     //plugin dependencies
-    compileOnly("org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT")
     compileOnly("net.ess3:EssentialsX:2.17.2")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
-    compileOnly(fileTree("libs") { include("*.jar") })
 
     //kotlin library
     implementation(kotlin("stdlib-jdk8"))

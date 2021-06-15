@@ -1,2 +1,2 @@
-rootProject.name = "BanList"
+rootProject.name = "DataList"
 

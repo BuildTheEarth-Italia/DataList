@@ -11,32 +11,16 @@ ssl:
 output:
   path:
     ban: "/ban"
-    freeze: "/freeze"
     onlinePlayers: "/online"
-    offlinePlayers: "/offline"
-    essentials:
-      mute: "/mute"
-      jail: "/jail"
-    vault:
-      permissions: "/permissions"
-      economy: "/economy"
+    permissions: "/permissions"
+    scoreboard: "/points"
   port: 80
 
 # Cosa devo mostrare?
 show:
   ban:
-    byIP: true
-    byNAME: true
-  essentials:
-    mute: true
-    jail:
-      jailed: true
-      jails: true
-  freeze: true
+    byIP: false
+    byNAME: false
   onlinePlayers: true
-  offlinePlayers: true
-  vault:
-    permissions: true
-    economy:
-      banks: true
-      balances: true
+  permissions: true
+  scoreboard: true

@@ -1,11 +1,9 @@
-main: it.marko.banlist.BanList
-name: "BanList"
+main: it.bteitalia.datalist.DataList
+name: "DataList"
 version: "1.2"
 author: "MemoryOfLife"
-website: "https://github.com/rospino74/BanList/"
+website: "https://github.com/BuildTheEarth-Italia/DataList/"
 description: "Restituisce in formato JSON la lista dei ban e mute"
-api-version: "1.15"
+#api-version: "1.12"
 softdepend:
-  - Essentials
-  - Freezer
   - Vault
