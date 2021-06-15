@@ -10,17 +10,8 @@ ssl:
 # Percorsi in cui mostrare l'output
 output:
   path:
-    ban: "/ban"
+    ban: false
     onlinePlayers: "/online"
     permissions: "/permissions"
-    scoreboard: "/points"
+    points: "/points"
   port: 80
-
-# Cosa devo mostrare?
-show:
-  ban:
-    byIP: false
-    byNAME: false
-  onlinePlayers: true
-  permissions: true
-  scoreboard: true

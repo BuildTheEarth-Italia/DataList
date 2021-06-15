@@ -7,9 +7,7 @@
 
 package it.bteitalia.datalist;
 
-import it.bteitalia.datalist.handlers.BanRequestHandler;
-import it.bteitalia.datalist.handlers.OnlinePlayersRequestHandler;
-import it.bteitalia.datalist.handlers.PointsRequestHandler;
+import it.bteitalia.datalist.server.RequestHandler;
 import it.bteitalia.datalist.server.Server;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.Plugin;
@@ -19,7 +17,9 @@ import org.yaml.snakeyaml.error.YAMLException;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.security.GeneralSecurityException;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 
@@ -32,9 +32,6 @@ public class DataList extends JavaPlugin {
     public static final String PREFIX = ChatColor.DARK_GREEN + "" + ChatColor.BOLD + "[DataList] " + ChatColor.RESET;
     private static DataList instance;
     private Server server;
-    private boolean isPermsEnabled;
-    private boolean isScoreEnabled;
-
 
     @Override
     public void onDisable() {
@@ -61,8 +58,6 @@ public class DataList extends JavaPlugin {
         if(!new File(DataList.getInstance().getDataFolder(), getConfig().getString("ssl.name")).exists() && getConfig().getBoolean("ssl.active"))
             saveResource(getConfig().getString("ssl.name"), true);
 
-        isScoreEnabled = getConfig().getBoolean("show.scoreboard");
-
         //avvio il server con un runnable
         new BukkitRunnable() {
             @Override
@@ -76,23 +71,9 @@ public class DataList extends JavaPlugin {
                         server = Server.buildInsecure(getConfig().getInt("output.port"), Executors.newCachedThreadPool());
                     }
 
-                    //prendo il ban path
-                    String banPath = getConfig().getString("output.path.ban");
-                    //aggiungo un route per ban
-                    server.createContext(banPath, new BanRequestHandler());
-
-                    //se attivo player Online lo carico
-                    if (getConfig().getBoolean("show.onlinePlayers")) {
-                        String onlinePath = getConfig().getString("output.path.onlinePlayers");
-                        server.createContext(onlinePath, new OnlinePlayersRequestHandler());
-                    }
-
-
-                    // se attivo scoreboard lo carico
-                    if (isScoreEnabled) {
-                        String scorePath = getConfig().getString("output.path.scoreboard");
-                        server.createContext(scorePath, new PointsRequestHandler());
-                    }
+                    enableRoutes("output.path", getConfig()
+                            .getConfigurationSection("output.path")
+                            .getKeys(false));
 
                     //avvio il server
                     printInfo("Avvio il server HTTP");
@@ -110,11 +91,59 @@ public class DataList extends JavaPlugin {
 
                     //fermo il plugin
                     printError("Disabilito il plugin");
-                    getServer().getPluginManager().disablePlugin(DataList.this);
+
+                    if(server != null)
+                        server.stop();
+                 //   getServer().getPluginManager().disablePlugin(DataList.this);
                 }
             }
         }.runTaskAsynchronously(this);
 
+    }
+
+    @SuppressWarnings("unchecked")
+    private void enableRoutes(String path, Set<String> list) {
+        list.forEach(obj -> {
+            //percorso corrente
+            String newPath = path + "." + obj;
+
+            try {
+                //cerco di ottenere le chiavi dell'oggetto, se fallisco vuol dire che è una chiave
+                Set<String> objects = getConfig()
+                        .getConfigurationSection(newPath)
+                        .getKeys(false);
+
+                //ripeto con nuovo percorso
+                enableRoutes(newPath, objects);
+            } catch (ClassCastException | NullPointerException ex) {
+                //se non è abilitato ritorno
+                Object urlOrEnabled = getConfig().get(newPath);
+
+                // Controllo che sia una stringa
+                if(!(urlOrEnabled instanceof String))
+                    return;
+
+                // Nome della classe handler
+                String handlerName = newPath.replace("output.path.", "") + "RequestHandler";
+                handlerName = Character.toUpperCase(handlerName.charAt(0)) + handlerName.substring(1);
+
+                // Creo il percorso compreso di package
+                String className = "it.bteitalia.datalist.handlers." + handlerName;
+
+                try {
+                    // Ottengo la classe
+                    Class<? extends RequestHandler> handler = (Class<? extends RequestHandler>) Class.forName(className);
+
+                    // Aggiungo l'handler
+                    server.createContext((String) urlOrEnabled, handler.getConstructor().newInstance());
+
+                } catch (ClassNotFoundException e) {
+                    printError("Classe " + className + "non trovata", e);
+                } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
+                    printError("Classe " + className + "non creabile", e);
+                }
+            }
+        });
     }
 
     /**
