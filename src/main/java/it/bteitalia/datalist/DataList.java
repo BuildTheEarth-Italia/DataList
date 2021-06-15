@@ -10,7 +10,6 @@ package it.bteitalia.datalist;
 import it.bteitalia.datalist.handlers.BanRequestHandler;
 import it.bteitalia.datalist.handlers.OnlinePlayersRequestHandler;
 import it.bteitalia.datalist.handlers.PointsRequestHandler;
-import it.bteitalia.datalist.handlers.PermsRequestHandler;
 import it.bteitalia.datalist.server.Server;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.Plugin;
@@ -62,15 +61,6 @@ public class DataList extends JavaPlugin {
         if(!new File(DataList.getInstance().getDataFolder(), getConfig().getString("ssl.name")).exists() && getConfig().getBoolean("ssl.active"))
             saveResource(getConfig().getString("ssl.name"), true);
 
-        //deve essere abilitato vault permissions?
-        if (getServer().getPluginManager().getPlugin("Vault") == null) {
-            //avviso che essentials non è installato
-            getLogger().warning("Vault non è installato! Non potrai vedere i gruppi dei player");
-
-            //imposto la variabile
-            isPermsEnabled = false;
-        } else isPermsEnabled = getConfig().getBoolean("show.vault.permissions");
-
         isScoreEnabled = getConfig().getBoolean("show.scoreboard");
 
         //avvio il server con un runnable
@@ -97,11 +87,6 @@ public class DataList extends JavaPlugin {
                         server.createContext(onlinePath, new OnlinePlayersRequestHandler());
                     }
 
-                    //se attivo vault permissions lo carico
-                    if (isPermsEnabled) {
-                        String pexPath = getConfig().getString("output.path.permissions");
-                        server.createContext(pexPath, new PermsRequestHandler());
-                    }
 
                     // se attivo scoreboard lo carico
                     if (isScoreEnabled) {

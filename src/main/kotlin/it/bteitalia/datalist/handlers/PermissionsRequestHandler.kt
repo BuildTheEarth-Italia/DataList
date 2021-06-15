@@ -15,7 +15,7 @@ import it.bteitalia.datalist.listers.PermsLister.Type
 import net.milkbowl.vault.permission.Permission
 import org.bukkit.Bukkit.getServer
 
-class PermsRequestHandler : RequestHandler() {
+class PermissionsRequestHandler : RequestHandler() {
     //permissions
     var p = getServer().servicesManager.getRegistration(Permission::class.java)!!.provider
 
