@@ -18,59 +18,49 @@ Inoltre, se vuoi vedere la lista di utenti congelati, installa il mio plugin [Fr
 ## Configurazione
 La configurazione di default del plugin è questa:
 ```yaml
+ssl:
+  active: true
+  password: "banlist"
+  name: "key.jks"
+
 # Percorsi in cui mostrare l'output
 output:
   path:
-    ban: "/ban"
-    freeze: "/freeze"
+    ban: false
     onlinePlayers: "/online"
-    offlinePlayers: "/offline"
-    essentials:
-      mute: "/mute"
-      jail: "/jail"
-    vault:
-      permissions: "/permissions"
-      economy: "/economy"
+    permissions: "/permissions"
+    points: "/points"
   port: 80
-
-# Cosa devo mostrare?
-show:
-  ban:
-    byIP: true
-    byNAME: true
-  essentials:
-    mute: true
-    jail:
-      jailed: true
-      jails: true
-  freeze: true
-  onlinePlayers: true
-  offlinePlayers: true
-  vault:
-    permissions: true
-    economy:
-      banks: true
-      balances: true
 ```
-* `output.path.ban`: Directory alla quale il server mostrerà come output la lista di utenti bannati
-* `output.path.freeze`: Directory alla quale il server mostrerà come output la lista di utenti congelati
-* `output.path.onlinePlayers`: Directory alla quale il server mostrerà come output la lista di utenti online
-* `output.path.offlinePlayers`: Directory alla quale il server mostrerà come output la lista di utenti offline
-* `output.path.essentials.mute`: Directory alla quale il server mostrerà come output la lista di utenti mutati
-* `output.path.essentials.jail`: Directory alla quale il server mostrerà come output la lista di utenti reclusi
-* `output.path.vault.permissions`: Directory alla quale il server mostrerà come output la lista di permessi
-* `output.path.vault.economy`: Directory alla quale il server mostrerà come output informazioni sull'economia
-* `output.port`: Porta sulla quale il server comunicherà. Ricordati che la porta deve essere aperta e libera da altri servizi
-* `show.ban.byIP`: Il plugin deve mostrate gli utenti bannati per indirizzo IP?
-* `show.ban.byNAME`: Il plugin deve mostrate gli utenti bannati per username?
-* `show.essentials.mute`: Il plugin deve mostrate gli utenti mutati? Se si è necessario il plugin [Essentials](https://github.com/EssentialsX/Essentials)
-* `show.essentials.jail.jailed`: Il plugin deve mostrate gli utenti reclusi? Se si è necessario il plugin [Essentials](https://github.com/EssentialsX/Essentials)
-* `show.essentials.jail.jails`: Il plugin deve mostrate le prigioni esistenti? Se si è necessario il plugin [Essentials](https://github.com/EssentialsX/Essentials)
-* `show.freeze`: Il plugin deve mostrate gli utenti congelati? Se si è necessario il plugin [Freezer](https://github.com/rospino74/Freezer)
-* `show.onlinePlayers`: Il plugin deve mostrate gli utenti online?
-* `show.offlinePlayers`: Il plugin deve mostrate gli utenti offline?
-* `show.vault.permissions`: Il plugin deve mostrate i gruppi? Se si è necessario il plugin [Vault](https://github.com/MilkBowl/Vault)
-* `show.vault.economy`: Il plugin deve mostrate i gruppi? Se si è necessario il plugin [Vault](https://github.com/MilkBowl/Vault)
+### SSL
+Puoi decidere se usare un certificato SSL per garantire la sicurezza del tuo sito. Il servizio SSL è attivato di default con una chiave autofirmata presente nel JAR.
+
+#### Creare una chiave autofirmata
+Per creare un keystore autofirmato puoi usare il seguente comando
+```bash
+keytool -genkeypair \
+        -keyalg RSA \
+        -alias selfsigned \
+        -keystore <name> \
+        -storepass <password> \
+        -validity 360 \
+        -keysize 2048
+```
+
+Dove:
+* `name` è il nome del keystore, da scrivere in `config.yml`
+* `password` è la password che protegge il keystore, da scrivere in `config.yml`
+
+#### Importare un certificato SSL in un keystore
+https://ordina-jworks.github.io/security/2019/08/14/Using-Lets-Encrypt-Certificates-In-Java.html#using-the-certificates-in-a-java-application
+
+### Output
+#### `path`
+Ognuna delle chiavi sottostanti a `path` può avere solo due valori: `false` oppure essere una stringa.
+Sel è `false` allora il percorso sarà disabilitato, altrimenti verrà utilizzato il percorso scelto.
+#### `port`
+Deve essere un intero compreso tra `0` e `65565`, il numero scelto inoltre non deve corrispondere a nessuno porta già in uso, vedi [gli errori comuni](#errori-comuni).
+
 ## Output di esempio
 ### Ban
 ```json
@@ -105,38 +95,21 @@ show:
 | `created` | `int` | Data di creazione del ban. È una data formato Unix |
 | `admin` | `String` | Nome del admin che ha effetuato il ban. Può essere il nome di un player o `Server` se il ban è eseguito dalla console |
 | `reason` | `String` | Motivo del ban |
-### Mute
+### Scoreboard
 ```json
 {
-   "mute": [
-      {
-         "name":"MemoryOfLife",
-         "until":1585564044000,
-         "forever": false,
-         "reason":"Stai muto nel mio server, Canaglia!"
-      }
-   ]
+  "ScoreboadName": [
+    {
+      "name": "MemoryOfLife",
+      "score": 500
+    }
+  ]
 }
 ```
 | Chiave | Tipo | Significato |
 | :--- | :---: | --- |
-| `name` | `String` | Nome del player mutato |
-| `until` | `int` | Data del termine del mute. È una data formato Unix |
-| `forever` | `bool` | Se è `true` il mute è permanente |
-| `reason` | `String` | Motivo del mute |
-### Freeze
-```json
-{
-   "freeze": [
-      {
-         "name":"MemoryOfLife"
-      }
-   ]
-}
-```
-| Chiave | Tipo | Significato |
-| :--- | :---: | --- |
-| `name` | `String` | Nome del player congelato |
+| `name` | `String` | Nome del player |
+| `score` | `int` | Punti del player in quel determinato scoreboard |
 ### Permissions
 ```json
 {
@@ -160,66 +133,7 @@ show:
 | :--- | :---: | --- |
 | `name` | `String` | Nome del gruppo |
 | `members` | `Array` di `String` | Membri del gruppo |
-### Economy
-```json
-{
-  "balances": [
-    {
-      "name": "MemoryOfLife",
-      "balance": 10000000000000
-    }
-  ],
-  "banks": [
-    {
-      "name": "banca che ho appena derubato",
-      "balance": 0
-    }
-  ]
-}
-```
-| Chiave | Tipo | Significato |
-| :--- | :---: | --- |
-| `name` | `String` | Nome del giocatore o della banca |
-| `balance` | `int` | Bilancio attuale |
-### Jail
-```json
-{
-  "jailed": [
-    {
-      "name": "MemoryOfLife",
-      "until": 1588255790378,
-      "forever": false,
-      "jail": "a"
-    }
-  ],
-  "jails": [
-    {
-      "name": "a",
-      "location": {
-        "x": -142.7315708181958,
-        "y": 45,
-        "z": 793.8098936062091,
-        "world": "SuperFlat"
-      }
-    }
-  ]
-}
-```
-#### Player Carcerato
-| Chiave | Tipo | Significato |
-| :--- | :---: | --- |
-| `name` | `String` | Nome del giocatore |
-| `until` | `int` | Data del termine della prigionia. È una data formato Unix |
-| `forever` | `bool` | Se è `true` la prigionia è permanente |
-| `jail` | `String` | Nome della cella dove il player è prigioniero |
-#### Prigione
-| Chiave | Tipo | Significato |
-| :--- | :---: | --- |
-| `name` | `String` | Nome della prigione |
-| `location.x` | `float` | Coordinata _X_ della cella |
-| `location.y` | `float` | Coordinata _Y_ della cella |
-| `location.z` | `float` | Coordinata _Z_ della cella |
-| `location.world` | `String` | Nome del mondo nel quale è situata la cella |
+
 ## Errori comuni
 * `java.net.BindException`: La porta scelta è già in uso, cambiarla nel file di configurazione
 * `java.io.IOException`: Si è verificato un errore nel comunicare con un altro sistema
