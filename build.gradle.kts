@@ -5,31 +5,22 @@
  * http://www.apache.org/licenses/LICENSE-2.0
  */
 
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.time.Year
 
 plugins {
     kotlin("jvm") version "1.3.72"
-}
-
-buildscript {
-    repositories {
-        jcenter()
-        mavenCentral()
-    }
-    dependencies {
-        classpath("com.github.jengelman.gradle.plugins:shadow:5.2.0")
-    }
+    id("com.github.johnrengelman.shadow") version "7.0.0"
+    java
 }
 
 group = "it.bteitalia.datalist"
-version = "1.2"
-
-apply(plugin = "com.github.johnrengelman.shadow")
-apply(plugin = "java")
+version = "1.0"
+val mainClassName = "$group.DataList"
 
 repositories {
     mavenCentral()
-    jcenter()
     maven { url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") }
     maven { url = uri("https://papermc.io/repo/repository/maven-public/") }
     maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots") }
@@ -55,4 +46,40 @@ compileKotlin.kotlinOptions {
 val compileTestKotlin: KotlinCompile by tasks
 compileTestKotlin.kotlinOptions {
     jvmTarget = "1.8"
+}
+
+tasks.named<ShadowJar>("shadowJar") {
+    // Rimuovo suffisso "all"
+    archiveClassifier.set("")
+
+    // Diminuisco la dimensione
+    minimize()
+
+    manifest {
+        attributes(
+            mapOf(
+                "Main-Class" to mainClassName,
+                "Implementation-Title" to project.name,
+                "Implementation-Version" to project.version
+            )
+        )
+    }
+}
+
+
+val processResourcesTask = tasks.getByName("processResources") as ProcessResources
+processResourcesTask.apply  {
+    from ("src/${sourceSets.main.name}/resources" ) {
+        include("plugin.yml")
+        include("LICENSE.txt")
+
+        expand (
+            Pair("version", project.version),
+            Pair("main", mainClassName),
+            Pair("author", "MemoryOfLife"),
+            Pair("copyrighter", "Build The Earth Italia"),
+            Pair("year", Year.now())
+        )
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
 }

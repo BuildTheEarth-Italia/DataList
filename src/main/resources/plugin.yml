@@ -1,7 +1,7 @@
-main: it.bteitalia.datalist.DataList
+main: ${main}
 name: "DataList"
-version: "1.2"
-author: "MemoryOfLife"
+version: ${version}
+author: ${author}
 website: "https://github.com/BuildTheEarth-Italia/DataList/"
 description: "Restituisce in formato JSON la lista dei ban e mute"
 #api-version: "1.12"
