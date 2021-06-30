@@ -31,6 +31,7 @@ public class DataList extends JavaPlugin {
      */
     public static final String PREFIX = ChatColor.DARK_GREEN + "" + ChatColor.BOLD + "[DataList] " + ChatColor.RESET;
     private static DataList instance;
+    private static Float version;
     private Server server;
 
     /**
@@ -42,6 +43,10 @@ public class DataList extends JavaPlugin {
      */
     public static DataList getInstance() {
         return instance;
+    }
+
+    public Float getVersion() {
+        return version;
     }
 
     @Override
@@ -110,6 +115,12 @@ public class DataList extends JavaPlugin {
             }
         }.runTaskAsynchronously(this);
 
+        String versionString = getServer().getClass().getPackage().getName();
+        versionString = versionString.substring(versionString.lastIndexOf('.') + 1);
+
+        version = Float.parseFloat(
+                versionString.substring(1, versionString.lastIndexOf('_')).replace('_', '.')
+        );
     }
 
     @SuppressWarnings("unchecked")
