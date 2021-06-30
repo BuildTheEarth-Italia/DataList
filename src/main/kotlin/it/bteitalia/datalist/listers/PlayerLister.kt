@@ -34,7 +34,7 @@ internal class PlayerLister {
         return out
     }
 
-    fun getJSON(player: Player): JsonObject {
+    private fun getJSON(player: Player): JsonObject {
         //oggetto in cui inserire i dati
         val entry = JsonObject()
 

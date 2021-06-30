@@ -33,6 +33,17 @@ public class DataList extends JavaPlugin {
     private static DataList instance;
     private Server server;
 
+    /**
+     * Usa questo metodo per ottenere l'istanza della classe {@link DataList}
+     *
+     * @return L'istanza corrente del plugin
+     * @see JavaPlugin
+     * @see Plugin
+     */
+    public static DataList getInstance() {
+        return instance;
+    }
+
     @Override
     public void onDisable() {
         super.onDisable();
@@ -55,7 +66,7 @@ public class DataList extends JavaPlugin {
         saveDefaultConfig();
 
         //salvo il certificato se non esiste e ssl abilitato
-        if(!new File(DataList.getInstance().getDataFolder(), getConfig().getString("ssl.name")).exists() && getConfig().getBoolean("ssl.active"))
+        if (!new File(getDataFolder(), getConfig().getString("ssl.name")).exists() && getConfig().getBoolean("ssl.active"))
             saveResource(getConfig().getString("ssl.name"), true);
 
         //avvio il server con un runnable
@@ -65,7 +76,7 @@ public class DataList extends JavaPlugin {
                 try {
                     //creo il server con la porta definita in output.port
                     //se non sicuro
-                    if(getConfig().getBoolean("ssl.active")) {
+                    if (getConfig().getBoolean("ssl.active")) {
                         server = Server.buildSecure(getConfig().getInt("output.port"), Executors.newCachedThreadPool());
                     } else {
                         server = Server.buildInsecure(getConfig().getInt("output.port"), Executors.newCachedThreadPool());
@@ -92,9 +103,9 @@ public class DataList extends JavaPlugin {
                     //fermo il plugin
                     printError("Disabilito il plugin");
 
-                    if(server != null)
+                    if (server != null)
                         server.stop();
-                 //   getServer().getPluginManager().disablePlugin(DataList.this);
+                    //   getServer().getPluginManager().disablePlugin(DataList.this);
                 }
             }
         }.runTaskAsynchronously(this);
@@ -120,7 +131,7 @@ public class DataList extends JavaPlugin {
                 Object urlOrEnabled = getConfig().get(newPath);
 
                 // Controllo che sia una stringa
-                if(!(urlOrEnabled instanceof String))
+                if (!(urlOrEnabled instanceof String))
                     return;
 
                 // Nome della classe handler
@@ -144,17 +155,6 @@ public class DataList extends JavaPlugin {
                 }
             }
         });
-    }
-
-    /**
-     * Usa questo metodo per ottenere l'istanza della classe {@link DataList}
-     *
-     * @return L'istanza corrente del plugin
-     * @see JavaPlugin
-     * @see Plugin
-     */
-    public static DataList getInstance() {
-        return instance;
     }
 
     /**
