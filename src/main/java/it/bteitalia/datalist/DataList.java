@@ -10,6 +10,7 @@ package it.bteitalia.datalist;
 import it.bteitalia.datalist.server.RequestHandler;
 import it.bteitalia.datalist.server.Server;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -69,10 +70,14 @@ public class DataList extends JavaPlugin {
 
         //salvo i config di default
         saveDefaultConfig();
+        updateConfigWithDefaults();
 
         //salvo il certificato se non esiste e ssl abilitato
-        if (!new File(getDataFolder(), getConfig().getString("ssl.name")).exists() && getConfig().getBoolean("ssl.active"))
+        if (!new File(getDataFolder(),
+                getConfig().getString("ssl.name")).exists() &&
+                getConfig().getBoolean("ssl.active")) {
             saveResource(getConfig().getString("ssl.name"), true);
+        }
 
         //avvio il server con un runnable
         new BukkitRunnable() {
@@ -241,5 +246,20 @@ public class DataList extends JavaPlugin {
      */
     public void printInfo(String reason) {
         printError(Level.INFO, reason, null);
+    }
+
+    private void updateConfigWithDefaults() {
+        File currentConfigFile = new File(getDataFolder(), "config.yml");
+        YamlConfiguration currentConfig = YamlConfiguration.loadConfiguration(currentConfigFile);
+
+        for (String section : getConfig().getDefaults().getConfigurationSection("").getKeys(true))
+            if (currentConfig.get(section) == null)
+                currentConfig.set(section, getConfig().get(section));
+
+        try {
+            currentConfig.save(currentConfigFile);
+        } catch (IOException e) {
+            printError("Impossibile aggiornare le configurazioni", e);
+        }
     }
 }
