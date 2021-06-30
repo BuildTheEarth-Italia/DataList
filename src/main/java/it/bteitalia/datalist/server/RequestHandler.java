@@ -18,7 +18,7 @@ import java.io.OutputStream;
 public abstract class RequestHandler implements HttpHandler {
     private HttpExchange exchange;
     @Override
-    public void handle(HttpExchange httpExchange) throws IOException {
+    public final void handle(HttpExchange httpExchange) throws IOException {
         //se httpExchange == null esco
         if (httpExchange == null)
             return;

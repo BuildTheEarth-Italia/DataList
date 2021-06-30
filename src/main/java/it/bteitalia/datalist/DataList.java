@@ -166,7 +166,7 @@ public class DataList extends JavaPlugin {
 
                 } catch (ClassNotFoundException e) {
                     printError("Classe " + className + "non trovata", e);
-                } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
+                } catch (ClassCastException | IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
                     printError("Classe " + className + "non creabile", e);
                 }
             }
