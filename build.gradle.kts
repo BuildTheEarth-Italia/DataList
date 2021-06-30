@@ -16,7 +16,7 @@ plugins {
 }
 
 group = "it.bteitalia.datalist"
-version = "1.0"
+version = "1.1"
 val mainClassName = "$group.DataList"
 
 repositories {
