@@ -71,6 +71,9 @@ public class DataList extends JavaPlugin {
         //salvo i config di default
         saveDefaultConfig();
         updateConfigWithDefaults();
+        
+        // Ricarico le configurazioni per applicare le modifiche 
+        reloadConfig();
 
         //salvo il certificato se non esiste e ssl abilitato
         if (!new File(getDataFolder(),
