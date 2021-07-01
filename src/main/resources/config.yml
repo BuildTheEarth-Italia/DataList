@@ -12,7 +12,7 @@ output:
   path:
     ban: false
     onlinePlayers: "/online"
-    permissions: "/permissions"
+    permissions: false
     points: "/points"
     playtime: "/playtime"
   port: 80
