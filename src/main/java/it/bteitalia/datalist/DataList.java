@@ -71,7 +71,7 @@ public class DataList extends JavaPlugin {
         //salvo i config di default
         saveDefaultConfig();
         updateConfigWithDefaults();
-        
+
         // Ricarico le configurazioni per applicare le modifiche 
         reloadConfig();
 
@@ -168,9 +168,9 @@ public class DataList extends JavaPlugin {
                     server.createContext((String) urlOrEnabled, handler.getConstructor().newInstance());
 
                 } catch (ClassNotFoundException e) {
-                    printError("Classe " + className + "non trovata", e);
+                    printError("Classe " + className + " non trovata", e);
                 } catch (ClassCastException | IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
-                    printError("Classe " + className + "non creabile", e);
+                    printError("Classe " + className + " non creabile", e);
                 }
             }
         });
@@ -264,5 +264,9 @@ public class DataList extends JavaPlugin {
         } catch (IOException e) {
             printError("Impossibile aggiornare le configurazioni", e);
         }
+    }
+
+    public Server getHttpServer() {
+        return server;
     }
 }

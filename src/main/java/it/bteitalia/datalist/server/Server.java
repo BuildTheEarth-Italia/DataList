@@ -143,6 +143,15 @@ public class Server {
         server.createContext(path, requestHandler);
     }
 
+    /**
+     * Rimuove un contesto per il server
+     *
+     * @param path           Percorso del contesto
+     */
+    public void removeContext(String path) {
+        server.removeContext(path);
+    }
+
     public void run() {
         server.start();
     }

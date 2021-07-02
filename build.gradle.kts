@@ -66,8 +66,7 @@ tasks.named<ShadowJar>("shadowJar") {
 }
 
 
-val processResourcesTask = tasks.getByName("processResources") as ProcessResources
-processResourcesTask.apply  {
+tasks.named<ProcessResources>("processResources") {
     from ("src/${sourceSets.main.name}/resources" ) {
         include("plugin.yml")
         include("LICENSE.txt")
