@@ -13,6 +13,7 @@ import com.google.gson.JsonParser
 import it.bteitalia.datalist.DataList
 import org.bukkit.Bukkit
 import org.bukkit.Statistic
+import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
@@ -32,12 +33,10 @@ internal class PlaytimeLister : Listener {
 
         for (player in Bukkit.getOfflinePlayers()) {
             val playtime: Int =
-                if (DataList.getInstance().version <= 1.13)
-                    player.player?.getStatistic(Statistic.PLAY_ONE_TICK)
-                else {
-                    val statistic = Statistic.valueOf("PLAY_ONE_MINUTE")
-                    player.player?.getStatistic(statistic)
-                } ?: getPlaytimeFromList(player.uniqueId)
+                if (player.player != null)
+                    getPlaytimeFromOnlinePlayer(player.player)
+                else
+                    getPlaytimeFromList(player.uniqueId)
 
             // Se playtime è 0 ignoro
             if (playtime <= 0)
@@ -57,32 +56,13 @@ internal class PlaytimeLister : Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     fun onPlayerLogout(evt: PlayerQuitEvent) {
-        val playtime: Int? =
-            if (DataList.getInstance().version <= 1.12)
-                evt.player?.getStatistic(Statistic.PLAY_ONE_TICK)
-            else {
-                val statistic = Statistic.valueOf("PLAY_ONE_MINUTE")
-                evt.player?.getStatistic(statistic)
-            }
-
-        PlaytimeLister.playtime[evt.player.uniqueId] = playtime ?: return
-
+        playtime[evt.player.uniqueId] = getPlaytimeFromOnlinePlayer(evt.player)
         updateFile()
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     fun onPlayerLogin(evt: PlayerJoinEvent) {
-        val playtime: Int? =
-            if (DataList.getInstance().version <= 1.12)
-                evt.player?.getStatistic(Statistic.PLAY_ONE_TICK)
-            else {
-//                val statistic = Statistic::class.java.enumConstants.find { it.name == "PLAY_ONE_MINUTE" }
-                val statistic = Statistic.valueOf("PLAY_ONE_MINUTE")
-                evt.player?.getStatistic(statistic)
-            }
-
-        PlaytimeLister.playtime[evt.player.uniqueId] = playtime ?: return
-
+        playtime[evt.player.uniqueId] = getPlaytimeFromOnlinePlayer(evt.player)
         updateFile()
     }
 
@@ -107,6 +87,15 @@ internal class PlaytimeLister : Listener {
         val writer = FileWriter(file)
         writer.write(toSave.toString())
         writer.close()
+    }
+
+    private fun getPlaytimeFromOnlinePlayer(player: Player): Int {
+        return player.getStatistic(
+            if (DataList.getInstance().version < 1.13)
+                Statistic.valueOf("PLAY_ONE_TICK")
+            else
+                Statistic.valueOf("PLAY_ONE_MINUTE")
+        )
     }
 
     companion object {
