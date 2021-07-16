@@ -7,6 +7,7 @@
 
 package it.bteitalia.datalist;
 
+import it.bteitalia.datalist.handlers.RootRequestHandler;
 import it.bteitalia.datalist.server.RequestHandler;
 import it.bteitalia.datalist.server.Server;
 import org.bukkit.ChatColor;
@@ -98,6 +99,9 @@ public class DataList extends JavaPlugin {
                     enableRoutes("output.path", getConfig()
                             .getConfigurationSection("output.path")
                             .getKeys(false));
+
+                    // Creo Root handler
+                    server.createContext("/", new RootRequestHandler());
 
                     //avvio il server
                     printInfo("Avvio il server HTTP");
