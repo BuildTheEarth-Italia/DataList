@@ -15,11 +15,15 @@ import it.bteitalia.datalist.listers.PointsLister
 import it.bteitalia.datalist.server.RequestHandler
 
 internal class PointsRequestHandler : RequestHandler() {
+    companion object {
+        private val defaultScoreboardName = DataList.getInstance().config.getString("defaultScoreboardName")
+    }
+
     override fun onIncomingRequest(httpExchange: HttpExchange) {
         val out = JsonObject()
 
         // Ottengo il nome dello scoreboard
-        val pointsScoreboardName =  "Leaderboard" //DataList.getInstance().config[]
+        val pointsScoreboardName =  queryParameters["name"] ?: defaultScoreboardName
 
         //json di player online
         out.add(pointsScoreboardName, PointsLister().getJSON(pointsScoreboardName))

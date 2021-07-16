@@ -16,3 +16,6 @@ output:
     points: "/points"
     playtime: "/playtime"
   port: 80
+
+# Scoreboard da mostrare di default
+defaultScoreboardName: "Leaderboard"
