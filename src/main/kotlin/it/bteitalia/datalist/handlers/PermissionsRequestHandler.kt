@@ -9,26 +9,54 @@ package it.bteitalia.datalist.handlers
 
 import com.google.gson.JsonObject
 import com.sun.net.httpserver.HttpExchange
-import it.bteitalia.datalist.server.RequestHandler
+import it.bteitalia.datalist.DataList
 import it.bteitalia.datalist.listers.PermsLister
 import it.bteitalia.datalist.listers.PermsLister.Type
+import it.bteitalia.datalist.server.RequestHandler
 import net.milkbowl.vault.permission.Permission
 import org.bukkit.Bukkit.getServer
 
 class PermissionsRequestHandler : RequestHandler() {
     //permissions
-    var p = getServer().servicesManager.getRegistration(Permission::class.java)!!.provider
+    private val p: Permission? = try {
+        getServer().servicesManager.getRegistration(Permission::class.java)!!.provider
+    } catch (ex: Throwable) {
+        DataList.getInstance().printError("Impossibile caricare i permessi, il plugin Vault non è installato.")
+
+        // Rimuovo il percorso
+        try {
+            removeThis()
+        } catch (ex: IllegalArgumentException) {
+        }
+
+        null
+    }
 
     override fun onIncomingRequest(exchange: HttpExchange) {
         //oggetto di out
         val out = JsonObject()
 
-        //lister
-        val list = PermsLister(p).getJSON(Type.GROUPS)
+        // lister. è safe perché se p è null questo blocco non viene mai eseguito
+        val list = try {
+            PermsLister(p!!).getJSON(Type.GROUPS)
+        } catch (ex: NullPointerException) {
+            removeThis()
+            abort(500)
+            return
+        }
 
         //aggiungo all'output
         out.add("groups", list)
 
         flushData(out.toString())
+    }
+
+    private fun removeThis() {
+        DataList.getInstance().config["output.path.permissions"] = false
+        DataList.getInstance().saveConfig()
+
+        DataList.getInstance().httpServer.removeContext(
+            DataList.getInstance().config.getString("output.path.permissions")
+        )
     }
 }

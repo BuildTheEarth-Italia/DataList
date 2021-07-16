@@ -87,6 +87,12 @@ public abstract class RequestHandler implements HttpHandler {
         outputStream.close();
     }
 
+    protected final void abort(@NotNull int code) throws IOException {
+        //imposto gli header per consentire le richieste AJAX
+        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+        exchange.sendResponseHeaders(code, 0);
+    }
+
     @NotNull
     protected final Map<String, String> getQueryParameters() {
         // Prendo la stringa contenente i parametri
