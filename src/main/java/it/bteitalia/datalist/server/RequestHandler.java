@@ -10,6 +10,8 @@ package it.bteitalia.datalist.server;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import it.bteitalia.datalist.DataList;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -17,20 +19,40 @@ import java.io.OutputStream;
 
 public abstract class RequestHandler implements HttpHandler {
     private HttpExchange exchange;
+
     @Override
     public final void handle(HttpExchange httpExchange) throws IOException {
-        //se httpExchange == null esco
+        // Se httpExchange == null esco
         if (httpExchange == null)
             return;
 
-        //salvo in variabile
+        // Salvo nella variabile locale una copia
         exchange = httpExchange;
 
-        //faccio il log
-        log("Richiesta HTTP ricevuta da '" + exchange.getRemoteAddress() + "', per il percorso '" + exchange.getRequestURI() + "'");
-
-        //chiamo il metodo onIncomeRequest
+        // Chiamo il metodo onIncomeRequest
         onIncomingRequest(exchange);
+
+        // Creo log string
+        StringBuilder toLog = new StringBuilder();
+        String method = exchange.getRequestMethod();
+        ChatColor methodColor = Methods.valueOf(method).color;
+
+        // Aggiungo prefix colorato
+        toLog.append(methodColor)
+                .append("[").append(method).append("] ")
+                .append(ChatColor.RESET);
+
+        toLog.append("Richiesta ricevuta da ")
+                .append(methodColor).append(ChatColor.ITALIC)
+                .append(exchange.getRemoteAddress())
+                .append(ChatColor.RESET)
+                .append(", tramite il seguente URI ")
+                .append(methodColor).append(ChatColor.ITALIC)
+                .append(exchange.getRequestURI())
+                .append(ChatColor.RESET).append('.');
+
+        // Scrivo in console
+        Bukkit.getServer().getConsoleSender().sendMessage(toLog.toString());
     }
 
     protected abstract void onIncomingRequest(@NotNull HttpExchange httpExchange) throws IOException;
@@ -61,5 +83,19 @@ public abstract class RequestHandler implements HttpHandler {
 
         //chiudo
         outputStream.close();
+    }
+
+    private enum Methods {
+        GET(ChatColor.AQUA),
+        POST(ChatColor.GREEN),
+        DELETE(ChatColor.RED),
+        PATCH(ChatColor.YELLOW),
+        PUT(ChatColor.GOLD);
+
+        private final ChatColor color;
+
+        Methods(ChatColor color) {
+            this.color = color;
+        }
     }
 }
