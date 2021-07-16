@@ -16,6 +16,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class RequestHandler implements HttpHandler {
     private HttpExchange exchange;
@@ -69,7 +71,7 @@ public abstract class RequestHandler implements HttpHandler {
         DataList.getInstance().printInfo(reason);
     }
 
-    public final void flushData(@NotNull String data) throws IOException {
+    protected final void flushData(@NotNull String data) throws IOException {
         //imposto gli header per consentire le richieste AJAX
         exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
         exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
@@ -83,6 +85,29 @@ public abstract class RequestHandler implements HttpHandler {
 
         //chiudo
         outputStream.close();
+    }
+
+    @NotNull
+    protected final Map<String, String> getQueryParameters() {
+        // Prendo la stringa contenente i parametri
+        String query = exchange.getRequestURI().getQuery();
+
+        // Creo Mappa da ritornare
+        Map<String, String> result = new HashMap<>();
+
+        // Itero tutte le entità
+        if (query != null)
+            for (String param : query.split("&")) {
+                String[] entry = param.split("=", 2);
+
+                if (entry.length > 1) {
+                    result.put(entry[0], entry[1]);
+                } else {
+                    result.put(entry[0], "");
+                }
+            }
+
+        return result;
     }
 
     private enum Methods {
