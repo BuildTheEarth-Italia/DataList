@@ -5,5 +5,6 @@ author: ${author}
 website: "https://github.com/BuildTheEarth-Italia/DataList/"
 description: "Restituisce in formato JSON la lista dei ban e mute"
 #api-version: "1.12"
+load: POSTWORLD
 softdepend:
   - Vault
